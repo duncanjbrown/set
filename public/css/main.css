@@ -1,0 +1,11 @@
+.card {
+  /* ratio of playing card is 5:7, or 2.5" x 3.5" */
+  width: 150px;
+  height: 210px;
+  border: 1px solid black;
+  border-radius: 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
