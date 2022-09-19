@@ -3,9 +3,16 @@
   width: 150px;
   height: 210px;
   border: 1px solid black;
-  border-radius: 20px;
+  border-radius: 7px;
 
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.cards {
+  display: grid;
+  justify-content: start;
+  grid-gap: 20px;
+  grid-template-columns: repeat(4, 160px);
 }
