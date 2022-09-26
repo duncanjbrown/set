@@ -1,13 +1,20 @@
 (ns djb.set.core
   (:require ["react-dom/client" :refer [createRoot]]
-            [reagent.core :as r]))
+            [reagent.core :as r]
+            [djb.set.graphics :as graphics]))
 
 (def cards
-  (for [colour [:red :green :purple]
-        fill [:none :lines :solid]
-        shape [:diamond :lozenge :squiggle]
-        number [1 2 3]] 
-    {:colour colour :fill fill :shape shape :number number}))
+  (let [cards (for [colour [:red :green :purple]
+                    fill [:none :lines :solid]
+                    shape [:diamond :lozenge :squiggle]
+                    number [1 2 3]]
+                {:colour colour :fill fill :shape shape :number number})]
+    (into {} (map #(vector %1 (merge {:id %1} %2)) (range) cards))))
+
+(defonce deck (atom (shuffle (keys cards))))
+(defonce cards-in-play (r/atom []))
+(defonce current-selection (r/atom #{}))
+(defonce sets (r/atom []))
 
 (defn makes-set? [cards]
   (let [attrs [:colour :fill :shape :number]]
@@ -18,69 +25,52 @@
                       (= variations 3)))) ; all different
             attrs)))
 
-(def deck (atom (shuffle cards)))
-(def cards-in-play (r/atom []))
-(def current-selection (r/atom []))
-(def sets (r/atom []))
+(defn adjudicate [_key buffer _old selection]
+  (when (= (count selection) 3)
+    (reset! buffer [])
+    (let [selected-cards (vals (select-keys cards selection))]
+      (when (makes-set? selected-cards)
+        (swap! sets conj selection)))))
 
-(add-watch current-selection :referee (fn [_key _atom _old new]
-                                        (when (= (count new) 3)
-                                          (println (makes-set? new)))))
+(add-watch current-selection :adjudicate adjudicate)
 
 (defn deal []
   (reset! cards-in-play (take 12 @deck))
   (swap! deck (partial drop 12)))
 
 (defn reset []
-  (reset! deck (shuffle cards))
-  (reset! current-selection [])
+  (reset! deck (shuffle (keys cards)))
+  (reset! current-selection #{})
   (deal))
 
-(defn select-card [card]
-  (swap! current-selection conj card))
+(defn select-card [card-id]
+  (swap! current-selection conj card-id))
 
-(def svgs
-  {:diamond
-    "M 16.62,36.00 C 16.62,36.00 71.00,8.50 71.00,8.50 71.00,8.50 124.88,36.00 124.88,36.00 124.88,36.00 71.00,64.50 71.00,64.50 71.00,64.50 16.62,36.00 16.62,36.00 Z",
-   :lozenge
-   "M 16.00,36.00 C 16.00,9.00 43.00,9.00 43.00,9.00 43.00,9.00 98.00,9.00 98.00,9.00 98.00,9.00 125.00,9.00 125.00,36.00 125.00,65.00 98.00,65.00 98.00,65.00 98.00,65.00 43.00,65.00 43.00,65.00 43.00,65.00 16.00,65.00 16.00,36.00 Z"
-   :squiggle
-   "M 16.00,36.00 C 16.00,17.00 29.22,5.03 43.00,9.00 56.78,12.97 84.01,25.35 98.00,23.62 111.99,21.90 106.88,9.00 112.00,9.00 117.12,9.00 125.00,17.00 125.00,36.00 125.00,55.00 108.30,72.27 98.00,65.00 87.70,57.73 57.48,50.49 43.00,51.50 28.52,52.51 33.25,65.00 29.00,65.00 24.75,65.00 16.00,55.00 16.00,36.00 Z"})
+(defn card-component [card-id]
+  (let [card (get cards card-id)]
+    [:li.card
+      {:on-click #(select-card card-id)}
+      (for [n (range (:number card))]
+        (with-meta
+         (graphics/shape (:shape card) (:colour card) (:fill card))
+         {:key (str card-id "-" n)}))]))
 
-(defn svg-lines [colour id]
-  [:defs
-    [:pattern
-      {:id id
-       :patternTransform "rotate(90 2 2)",
-        :height "2.5",
-        :width "4",
-        :patternUnits "userSpaceOnUse"}
-      [:path {:stroke-width "2", :stroke colour, :d "M -0.5,0 L 4,0"}]]])
+(defn hand []
+  [:ul.cards.hand
+   (map (fn [card-id]
+          ^{:key card-id} [card-component card-id])
+    @current-selection)])
 
-(defn get-shape [shape colour fill]
-  (let [id (rand-int 10000)]
-    [:svg
-      {:xmlns "http://www.w3.org/2000/svg"
-        :width "1.97222in"
-        :height "1.05556in"
-        :viewBox "0 0 142 76"}
-      (when (= fill :lines)
-        (svg-lines colour id))
-      [:path
-        {:d (shape svgs)
-         :fill (case fill
-                     :solid colour
-                     :lines (str "url(#" id ")")
-                     :none "white")
-         :stroke colour
-         :stroke-width 2}]]))
-
-(get-shape :diamond "red" :none)
-
-(defn card-component [card]
-  [:li.card
-   {:on-click #(select-card card)}
-   (repeat (:number card) (get-shape (:shape card) (:colour card) (:fill card)))])
+(defn complete-sets []
+  (when (seq @sets)
+    [:ul.cards.sets
+     (map (fn [idx complete-set]
+            #{:key idx}
+            [:div.set
+              (map
+                (fn [card-id]
+                  ^{:key card-id} [card-component card-id]) complete-set)])
+          (range) @sets)]))
 
 (defn deal-button []
   [:div.deal
@@ -92,15 +82,20 @@
 
 (defn debug-tools []
   [:div.debug
-   [:p (str @current-selection)]
+   [hand]
+   [:h2 "Sets"]
+   [complete-sets]
    [:p (str (count @deck) " cards in deck")]
    [:p (str (count @cards-in-play) " cards in play")]])
 
 (defn game []
-  [:div.game
-    [:div.debug [debug-tools]]
-    [:div.controls [:div [deal-button] [reset-button]]]
-    [:div.tabletop [:ul.cards (for [card @cards-in-play] ^{:key (hash card)} [card-component card])]]])
+  [:div#set
+    [:svg {:id "svg-defs"} (map graphics/svg-lines [:red :purple :green])]
+    [:div.game
+      [:div.debug [debug-tools]]
+      [:div.controls [:div [deal-button] [reset-button]]]
+      [:div.tabletop [:ul.cards (for [card-id @cards-in-play] ^{:key card-id} [card-component card-id])]]]])
+
 
 (defonce root (createRoot (.getElementById js/document "root")))
 
@@ -108,7 +103,7 @@
   (.render root (r/as-element [game])))
 
 (defn init []
-  (reset! deck (shuffle cards))
+  (reset! deck (shuffle (keys cards)))
   (deal)
   (render))
 
@@ -117,5 +112,8 @@
   (render))
 
 (comment
+  ;; #rtrace (+ 1 2)
+  ;; #rtrace2 (+ 2 2)
+  (tap> "from comment")
   (init)
   (def hand (take 3 (shuffle cards))))

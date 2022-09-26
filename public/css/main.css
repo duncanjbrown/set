@@ -8,6 +8,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+
+  flex-direction: column;
 }
 
 .cards {
@@ -15,4 +17,33 @@
   justify-content: start;
   grid-gap: 20px;
   grid-template-columns: repeat(4, 160px);
+}
+
+.hand.cards, .sets.cards {
+  grid-template-columns: repeat(4, 55px);
+}
+
+.hand .card {
+  width: 50px;
+  height: 70px;
+}
+
+.sets .card {
+  width: 50px;
+  height: 70px;
+}
+
+.card {
+  box-shadow: 2px 2px 2px #e6e6e6
+}
+
+.card svg {
+  width:100%;
+  height: 33%;
+}
+
+#svg-defs {
+  position: absolute;
+  height: 0;
+  width: 0;
 }
