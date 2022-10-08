@@ -13,7 +13,7 @@
 
 (defonce deck (atom (shuffle (keys cards))))
 (defonce cards-in-play (r/atom []))
-(defonce current-selection (r/atom #{}))
+(defonce current-selection (r/atom []))
 (defonce sets (r/atom []))
 
 (defn makes-set? [cards]
@@ -25,12 +25,15 @@
                       (= variations 3)))) ; all different
             attrs)))
 
-(defn adjudicate [_key buffer _old selection]
-  (when (= (count selection) 3)
-    (reset! buffer [])
-    (let [selected-cards (vals (select-keys cards selection))]
-      (when (makes-set? selected-cards)
-        (swap! sets conj selection)))))
+#trace
+(defn adjudicate [_key r _old new-selection]
+  #tap new-selection
+  (when (= (count new-selection) 3)
+    (reset! r [])
+    (let [selected-cards (vals (select-keys cards new-selection))]
+      (if (makes-set? selected-cards)
+        (swap! sets conj new-selection)
+        (swap! cards-in-play #(into (remove nil? %1) %2) new-selection)))))
 
 (add-watch current-selection :adjudicate adjudicate)
 
@@ -44,16 +47,19 @@
   (deal))
 
 (defn select-card [card-id]
-  (swap! current-selection conj card-id))
+  (swap! current-selection conj card-id)
+  (swap! cards-in-play #(replace {card-id nil} %1)))
 
 (defn card-component [card-id]
   (let [card (get cards card-id)]
-    [:li.card
-      {:on-click #(select-card card-id)}
-      (for [n (range (:number card))]
-        (with-meta
-         (graphics/shape (:shape card) (:colour card) (:fill card))
-         {:key (str card-id "-" n)}))]))
+    (if (nil? card)
+      [:li.card-space] 
+      [:li.card
+        {:on-click #(select-card card-id)}
+        (for [n (range (:number card))]
+          (with-meta
+            (graphics/shape (:shape card) (:colour card) (:fill card))
+            {:key (str card-id "-" n)}))])))
 
 (defn hand []
   [:ul.cards.hand
