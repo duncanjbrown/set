@@ -8,7 +8,8 @@
  [[binaryage/devtools "1.0.6"]
   [nrepl/nrepl "1.0.0"]
   [cider/cider-nrepl "0.28.5"]
-  [com.github.jpmonettas/flow-storm-inst "3.6.9"]
+  [org.clojure/tools.namespace "1.4.4"]
+  [dev.weavejester/cljfmt "0.10.6"]
   [reagent "1.1.1"]]
 
  :nrepl {:port 9000}

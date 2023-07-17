@@ -1,3 +1,7 @@
+html {
+  font-family: sans-serif
+}
+
 .card {
   /* ratio of playing card is 5:7, or 2.5" x 3.5" */
   width: 150px;
@@ -19,8 +23,27 @@
   grid-template-columns: repeat(4, 160px);
 }
 
-.hand.cards, .sets.cards {
-  grid-template-columns: repeat(4, 55px);
+.sets.cards {
+  grid-template-columns: repeat(2, 177px);
+  padding: 0px;
+}
+
+.sets .card {
+  margin-top: 6px;
+}
+
+.cards {
+  padding: 0px;
+}
+
+.card.selected {
+  box-shadow: 10px 10px;
+}
+
+.set {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 10px;
 }
 
 .hand .card,
@@ -44,4 +67,14 @@
   position: absolute;
   height: 0;
   width: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 0.5fr 4fr; /* Adjust the ratio as needed */
+  grid-gap: 20px; /* Adjust the gap between columns as needed */
+}
+
+.grid .left {
+  border-right: 1px solid #e1e1e1;
 }

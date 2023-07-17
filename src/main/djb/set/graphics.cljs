@@ -2,7 +2,7 @@
 
 (def svgs
   {:diamond
-    "M 16.62,36.00 C 16.62,36.00 71.00,8.50 71.00,8.50 71.00,8.50 124.88,36.00 124.88,36.00 124.88,36.00 71.00,64.50 71.00,64.50 71.00,64.50 16.62,36.00 16.62,36.00 Z",
+   "M 16.62,36.00 C 16.62,36.00 71.00,8.50 71.00,8.50 71.00,8.50 124.88,36.00 124.88,36.00 124.88,36.00 71.00,64.50 71.00,64.50 71.00,64.50 16.62,36.00 16.62,36.00 Z",
    :lozenge
    "M 16.00,36.00 C 16.00,9.00 43.00,9.00 43.00,9.00 43.00,9.00 98.00,9.00 98.00,9.00 98.00,9.00 125.00,9.00 125.00,36.00 125.00,65.00 98.00,65.00 98.00,65.00 98.00,65.00 43.00,65.00 43.00,65.00 43.00,65.00 16.00,65.00 16.00,36.00 Z"
    :squiggle
@@ -11,26 +11,26 @@
 (defn svg-lines [colour]
   ^{:key (str "lines-" colour)}
   [:defs
-    [:pattern
-      {:id (str (name colour) "-lines")
-       :patternTransform "rotate(90 2 2)",
-        :height "2.5",
-        :width "4",
-        :patternUnits "userSpaceOnUse"}
-      [:path {:stroke-width "2", :stroke colour, :d "M -0.5,0 L 4,0"}]]])
+   [:pattern
+    {:id (str (name colour) "-lines")
+     :patternTransform "rotate(90 2 2)",
+     :height "2.5",
+     :width "4",
+     :patternUnits "userSpaceOnUse"}
+    [:path {:stroke-width "2", :stroke colour, :d "M -0.5,0 L 4,0"}]]])
 
 (defn shape [shape colour fill]
   [:svg
-    {:xmlns "http://www.w3.org/2000/svg"
-      :width "1.97222in"
-      :height "1.05556in"
-      :viewBox "0 0 142 76"}
-    [:path
-      {:d (shape svgs)
-        :fill (case fill
-                    :solid colour
-                    :lines (str "url(#" (name colour) "-lines)")
-                    :none "white")
-        :stroke colour
-        :stroke-width 2}]])
+   {:xmlns "http://www.w3.org/2000/svg"
+    :width "1.97222in"
+    :height "1.05556in"
+    :viewBox "0 0 142 76"}
+   [:path
+    {:d (shape svgs)
+     :fill (case fill
+             :solid colour
+             :lines (str "url(#" (name colour) "-lines)")
+             :none "white")
+     :stroke colour
+     :stroke-width 2}]])
 
