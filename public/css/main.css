@@ -71,7 +71,7 @@ html {
 
 .grid {
   display: grid;
-  grid-template-columns: 0.5fr 4fr; /* Adjust the ratio as needed */
+  grid-template-columns: 0.6fr 4fr; /* Adjust the ratio as needed */
   grid-gap: 20px; /* Adjust the gap between columns as needed */
 }
 

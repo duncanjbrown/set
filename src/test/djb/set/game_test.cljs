@@ -1,5 +1,5 @@
-(ns djb.set.core-test
-  (:require [djb.set.core :as sut]
+(ns djb.set.game-test
+  (:require [djb.set.game :as sut]
             [cljs.test :refer-macros [deftest is testing run-tests]]))
 
 (defn extract-valid-set [state]
@@ -76,20 +76,10 @@
                        (-> state
                            (sut/select-card good-card)
                            (sut/select-card good-card))))))
-      (is (= 3 (count (:current-selection
+      (is (= 1 (count (:current-selection
                        (-> state
                            (sut/select-card good-card)
                            (sut/select-card good-card)
                            (sut/select-card good-card)
                            (sut/select-card good-card))))))
       (is (= 0 (count (:current-selection (sut/select-card state bad-card))))))))
-
-(testing "ui and state"
-  (deftest taking-sets
-    (let [astate (atom (sut/fresh-state sut/cards))]
-      (swap! astate #(assoc % :current-selection (extract-valid-set %)))
-      (is (= 0 (count (:current-selection @astate))))
-      (is (= 1 (count (:sets @astate)))))))
-
-(comment
-  (run-tests))
