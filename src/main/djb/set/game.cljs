@@ -8,7 +8,7 @@
                 {:colour colour :fill fill :shape shape :number number})]
     (map #(merge {:id %1} %2) (range) cards)))
 
-(defn fresh-state [cards] {:cards cards :deck (shuffle cards) :cards-in-play '() :current-selection '() :sets '()})
+(defn fresh-state [cards] {:cards cards :deck (shuffle cards) :cards-in-play '() :current-selection #{} :sets '()})
 
 (defn makes-set? [cards]
   (let [attrs [:colour :fill :shape :number]]
@@ -42,7 +42,7 @@
         new-state (remove-cards-from-play state current-selection)
         new-sets (conj sets current-selection)]
     (-> new-state
-        (assoc :sets new-sets :current-selection '())
+        (assoc :sets new-sets :current-selection #{})
         deal-up)))
 
 (defn holding-set? [state]
@@ -61,6 +61,6 @@
               (update :current-selection conj card)
               take-sets-if-any)
           legal-card?
-          (assoc state :current-selection (list card))
+          (assoc state :current-selection (set (list card)))
           :else
-          (assoc state :current-selection '()))))
+          (assoc state :current-selection #{}))))

@@ -64,22 +64,10 @@
 
   (deftest test-select-card
     (let [state (sut/deal (sut/fresh-state sut/cards))
-          bad-card 99
-          good-card (first (:cards-in-play state))]
-      (is (= 1 (count (:current-selection (sut/select-card state good-card)))))
-      (is (= 3 (count (:current-selection
-                       (-> state
-                           (sut/select-card good-card)
-                           (sut/select-card good-card)
-                           (sut/select-card good-card))))))
-      (is (= 2 (count (:current-selection
-                       (-> state
-                           (sut/select-card good-card)
-                           (sut/select-card good-card))))))
-      (is (= 1 (count (:current-selection
-                       (-> state
-                           (sut/select-card good-card)
-                           (sut/select-card good-card)
-                           (sut/select-card good-card)
-                           (sut/select-card good-card))))))
+          bad-card :whatever
+          good-cards (take 10 (:cards-in-play state))]
+      (is (= 1 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 1 good-cards))))))
+      (is (= 2 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 2 good-cards))))))
+      (is (= 3 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 3 good-cards))))))
+      (is (= 1 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 4 good-cards))))))
       (is (= 0 (count (:current-selection (sut/select-card state bad-card))))))))
