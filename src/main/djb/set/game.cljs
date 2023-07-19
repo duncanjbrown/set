@@ -37,13 +37,23 @@
   (-> state
       (update :cards-in-play (partial remove (set cards)))))
 
+;; we can track which cards we're about to remove...
+(defn- indices-of-els [s els]
+  (let [element-set (set els)]
+    (keep-indexed (fn [i member] (when (contains? element-set member) i)) s)))
+
+;; ...and replace them with the new cards
+(defn- replace-els [s els replacements]
+  (let [idxs (indices-of-els s els)]
+    (apply assoc (vec s) (mapcat vector idxs replacements))))
+
 (defn take-set [state]
-  (let [{:keys [current-selection sets]} state
-        new-state (remove-cards-from-play state current-selection)
+  (let [{:keys [deck cards-in-play current-selection sets]} state
+        new-cards (take 3 deck)
+        new-deck (drop 3 deck)
+        new-cards-in-play (replace-els cards-in-play current-selection new-cards)
         new-sets (conj sets current-selection)]
-    (-> new-state
-        (assoc :sets new-sets :current-selection #{})
-        deal-up)))
+      (assoc state :cards-in-play new-cards-in-play :deck new-deck :sets new-sets :current-selection #{})))
 
 (defn holding-set? [state]
   (makes-set? (:current-selection state)))
@@ -56,7 +66,10 @@
 (defn select-card [state card]
   (let [legal-card? (contains? (set (:cards-in-play state)) card)
         room-in-hand? (< (count (:current-selection state)) 3)]
-    (cond (and legal-card? room-in-hand?)
+    (cond (contains? (:current-selection state) card)
+          (-> state
+              (update :current-selection disj card))
+          (and legal-card? room-in-hand?)
           (-> state
               (update :current-selection conj card)
               take-sets-if-any)
