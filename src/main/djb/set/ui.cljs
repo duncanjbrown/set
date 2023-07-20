@@ -44,9 +44,15 @@
    [:button {:type "button" :on-click #(reset! astate (assoc @astate :cards-in-play (take 12 (shuffle (:deck @astate)))))}
     "Shuffle"]])
 
+(defn last-3-button [astate]
+  (let [deck (take 3 (:deck @astate))]
+    [:div.deal
+      [:button {:type "button" :on-click #(reset! astate (assoc @astate :deck deck))}
+        "Last 3"]]))
+
 (defn reset-button [astate]
   [:div.deal
-   [:button {:type "button" :on-click #(reset! astate (game/fresh-state game/cards))} "Reset"]])
+   [:button {:type "button" :on-click #(reset! astate (game/deal (game/fresh-state game/cards)))} "Reset"]])
 
 (defn ui [astate]
   (let [sets (r/cursor astate [:sets])
@@ -56,6 +62,7 @@
         card-component (partial card-component astate)
         deal-button (partial deal-button astate)
         shuffle-button (partial shuffle-button astate)
+        last-3-button (partial last-3-button astate)
         three-more-cards-button (partial three-more-cards-button astate)
         reset-button (partial reset-button astate)]
     [:div.grid
@@ -64,7 +71,7 @@
       [:div.debug
        [complete-sets]
        [:p (str (count @deck) " cards in deck")]
-       [:div.controls [:div [deal-button] [shuffle-button] [three-more-cards-button] [reset-button]]]]]
+       [:div.controls [:div [deal-button] [shuffle-button] [three-more-cards-button] [last-3-button] [reset-button]]]]]
      [:div.right
       [:div#set
        [:svg {:id "svg-defs"} (map graphics/svg-lines [:red :purple :green])]
