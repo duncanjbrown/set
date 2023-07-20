@@ -44,8 +44,9 @@
           new-state (sut/deal (sut/deal state))]
       (is
        (= 12 (count (:cards-in-play new-state)))
-       (= (- 81 12) (count (:deck new-state))))))
+       (= (- 81 12) (count (:deck new-state)))))))
 
+(testing "selecting"
   (deftest remove-cards-from-play
     (let [state (sut/fresh-state sut/cards)
           dealt (sut/deal state)
@@ -71,3 +72,10 @@
       (is (= 3 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 3 good-cards))))))
       (is (= 1 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 4 good-cards))))))
       (is (= 0 (count (:current-selection (sut/select-card state bad-card))))))))
+
+(testing "computer assist"
+  (deftest detect-sets
+    (let [singular-red-cards (->> sut/cards
+                                  (filter #(and (= :red (:colour %)) (= 1 (:number %)))))]
+      (is (every? sut/makes-set? (sut/detect-sets singular-red-cards)))
+      (is (= 12 (count (sut/detect-sets singular-red-cards)))))))

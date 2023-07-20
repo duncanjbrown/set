@@ -1,4 +1,5 @@
-(ns djb.set.game)
+(ns djb.set.game
+  (:require [clojure.math.combinatorics :as comb]))
 
 (def cards
   (let [cards (for [colour [:red :green :purple]
@@ -36,6 +37,9 @@
 (defn remove-cards-from-play [state cards]
   (-> state
       (update :cards-in-play (partial remove (set cards)))))
+
+(defn detect-sets [cards]
+  (filter makes-set? (comb/combinations cards 3)))
 
 ;; we can track which cards we're about to remove...
 (defn- indices-of-els [s els]

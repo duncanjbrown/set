@@ -9,6 +9,7 @@
   [nrepl/nrepl "1.0.0"]
   [cider/cider-nrepl "0.28.5"]
   [org.clojure/tools.namespace "1.4.4"]
+  [org.clojure/math.combinatorics "0.2.0"]
   [dev.weavejester/cljfmt "0.10.6"]
   [reagent "1.1.1"]]
 
