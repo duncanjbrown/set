@@ -9,7 +9,13 @@
                 {:colour colour :fill fill :shape shape :number number})]
     (map #(merge {:id %1} %2) (range) cards)))
 
-(defn fresh-state [cards] {:cards cards :deck (shuffle cards) :cards-in-play '() :current-selection #{} :sets '()})
+(defn fresh-state [cards] {:cards cards
+                           :deck (shuffle cards)
+                           :sets-in-play '()
+                           :cards-in-play '()
+                           :current-selection #{}
+                           :sets '()
+                           :highlighting false})
 
 (defn makes-set? [cards]
   (let [attrs [:colour :fill :shape :number]]
@@ -21,12 +27,21 @@
                          (= variations 3)))) ; all different
                  attrs))))
 
+(defn detect-sets [cards]
+  (filter makes-set? (comb/combinations cards 3)))
+
 (defn initial-deal [state]
-  (assoc state :deck (drop 12 (:deck state)) :cards-in-play (take 12 (:deck state))))
+  (let [[new-cards-in-play new-deck] (split-at 12 (:deck state))]
+    (-> state
+        (assoc :deck new-deck 
+               :cards-in-play new-cards-in-play)
+        (assoc :sets-in-play (detect-sets new-cards-in-play)))))
 
 (defn deal-up [state]
   (let [cards-in-play (concat (take 3 (:deck state)) (:cards-in-play state))]
-    (assoc state :deck (drop 3 (:deck state)) :cards-in-play cards-in-play)))
+    (-> state
+        (assoc :deck (drop 3 (:deck state)) :cards-in-play cards-in-play)
+        (assoc :sets-in-play (detect-sets cards-in-play)))))
 
 (defn deal [state]
   (cond
@@ -34,12 +49,11 @@
     (< 12 (:cards-in-play state)) (deal-up state)
     :else state))
 
-(defn remove-cards-from-play [state cards]
-  (-> state
-      (update :cards-in-play (partial remove (set cards)))))
-
-(defn detect-sets [cards]
-  (filter makes-set? (comb/combinations cards 3)))
+(defn shuffle-cards [state]
+  (let [cards-in-play (concat (take 12 (shuffle (:deck state))))]
+    (-> state
+        (assoc :cards-in-play cards-in-play)
+        (assoc :sets-in-play (detect-sets cards-in-play)))))
 
 ;; we can track which cards we're about to remove...
 (defn- indices-of-els [s els]
@@ -56,14 +70,17 @@
         new-cards (take 3 deck)
         new-deck (drop 3 deck)
         new-cards-in-play (replace-els cards-in-play current-selection new-cards)
-        new-sets (conj sets current-selection)]
-      (assoc state :cards-in-play new-cards-in-play :deck new-deck :sets new-sets :current-selection #{})))
-
-(defn holding-set? [state]
-  (makes-set? (:current-selection state)))
+        new-sets (conj sets current-selection)
+        new-sets-in-play (detect-sets new-cards-in-play)]
+      (assoc state
+             :sets-in-play new-sets-in-play
+             :cards-in-play new-cards-in-play 
+             :deck new-deck
+             :sets new-sets
+             :current-selection #{})))
 
 (defn take-sets-if-any [state]
-  (if (holding-set? state)
+  (if (makes-set? (:current-selection state))
     (take-set state)
     state))
 

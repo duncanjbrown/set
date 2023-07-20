@@ -40,6 +40,10 @@ html {
   box-shadow: 10px 10px;
 }
 
+.card.in-set {
+  border: 3px solid gold;
+}
+
 .set {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

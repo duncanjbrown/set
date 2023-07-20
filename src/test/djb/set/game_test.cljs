@@ -47,12 +47,6 @@
        (= (- 81 12) (count (:deck new-state)))))))
 
 (testing "selecting"
-  (deftest remove-cards-from-play
-    (let [state (sut/fresh-state sut/cards)
-          dealt (sut/deal state)
-          new-state (sut/remove-cards-from-play dealt (take 3 (:cards-in-play dealt)))]
-      (is (= (- 12 3) (count (:cards-in-play new-state))))))
-
   (deftest take-set
     (let [dealt (sut/deal (sut/fresh-state sut/cards))
           cards-to-take (take 3 (:cards-in-play dealt))
