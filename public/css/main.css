@@ -24,8 +24,12 @@ html {
 }
 
 .sets.cards {
-  grid-template-columns: repeat(2, 177px);
+  display: block;
   padding: 0px;
+}
+
+.sets.cards .set {
+  margin-bottom: 6px;
 }
 
 .sets .card {
@@ -81,4 +85,15 @@ html {
 
 .grid .left {
   border-right: 1px solid #e1e1e1;
+  padding-right: 10px;
+  width: 180px;
+}
+
+button {
+  width: 100%;
+  margin-bottom: 10px;
+  background-color: white;
+  border: 1px solid #737373;
+  padding: 5px;
+  box-shadow: 2px 2px;
 }

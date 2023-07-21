@@ -15,7 +15,7 @@
                            :cards-in-play '()
                            :current-selection #{}
                            :sets '()
-                           :highlighting false})
+                           :highlighting? false})
 
 (defn makes-set? [cards]
   (let [attrs [:colour :fill :shape :number]]
