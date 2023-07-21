@@ -57,6 +57,14 @@
       (is (not (some (set cards-to-take) (:cards-in-play new-state))))
       (is (= 1 (count (:sets new-state))))))
 
+  (deftest back-to-twelve-after-fifteen
+    (let [state (-> (sut/fresh-state sut/cards)
+                    sut/deal
+                    sut/deal-up
+                    (update :current-selection #(take 3 (:cards-in-play %)))
+                    sut/take-set)]
+      (is (= 12 (count (:cards-in-play state))))))
+
   (deftest test-select-card
     (let [state (sut/deal (sut/fresh-state sut/cards))
           bad-card :whatever

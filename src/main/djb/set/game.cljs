@@ -65,10 +65,9 @@
   (let [idxs (indices-of-els s els)]
     (apply assoc (vec s) (mapcat vector idxs replacements))))
 
-(defn take-set [state]
+(defn- take-set-and-deal-back-to-twelve [state]
   (let [{:keys [deck cards-in-play current-selection sets]} state
-        new-cards (take 3 deck)
-        new-deck (drop 3 deck)
+        [new-cards new-deck] (split-at 3 deck)
         new-cards-in-play (replace-els cards-in-play current-selection new-cards)
         new-sets (conj sets current-selection)
         new-sets-in-play (detect-sets new-cards-in-play)]
@@ -78,6 +77,22 @@
              :deck new-deck
              :sets new-sets
              :current-selection #{})))
+
+(defn- take-set-and-do-not-deal [state]
+  (let [{:keys [cards-in-play current-selection sets]} state
+        new-cards-in-play (filter #(not (contains? current-selection %)) cards-in-play)
+        new-sets (conj sets current-selection)
+        new-sets-in-play (detect-sets new-cards-in-play)]
+      (assoc state
+             :sets-in-play new-sets-in-play
+             :cards-in-play new-cards-in-play 
+             :sets new-sets
+             :current-selection #{})))
+
+(defn take-set [state]
+  (if (< (- (count (:cards-in-play state)) 3) 12)
+    (take-set-and-deal-back-to-twelve state)
+    (take-set-and-do-not-deal state)))
 
 (defn take-sets-if-any [state]
   (if (makes-set? (:current-selection state))
