@@ -60,10 +60,12 @@
   (deftest back-to-twelve-after-fifteen
     (let [state (-> (sut/fresh-state sut/cards)
                     sut/deal
-                    sut/deal-up
-                    (update :current-selection #(take 3 (:cards-in-play %)))
-                    sut/take-set)]
-      (is (= 12 (count (:cards-in-play state))))))
+                    sut/deal-up)
+          new-state (-> (assoc state :current-selection (take 3 (:cards-in-play state)))
+                        sut/take-set)]
+      (tap> "Here in test")
+      (tap> new-state)
+      (is (= 12 (count (:cards-in-play new-state))))))
 
   (deftest test-select-card
     (let [state (sut/deal (sut/fresh-state sut/cards))

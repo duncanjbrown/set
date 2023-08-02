@@ -39,8 +39,9 @@
   [:div.highlight-toggle
    [:input {:type "checkbox"
             :checked (:highlighting? @astate)
+            :id "highlight-toggle"
             :on-change #(swap! astate update :highlighting? not)}]
-   " Highlight Sets"])
+   [:label {:for "highlight-toggle"} " Highlight Sets"]])
 
 (defn ui [astate]
   (let [sets (r/cursor astate [:sets])

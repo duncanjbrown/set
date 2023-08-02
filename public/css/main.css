@@ -45,7 +45,7 @@ html {
 }
 
 .card.in-set {
-  border: 3px solid gold;
+  border-color: gold;
 }
 
 .set {
