@@ -14,6 +14,7 @@
     "react-dom": "^18.2.0"
   },
   "scripts": {
-    "test": "shadow-cljs compile test && karma start --single-run"
+    "test": "shadow-cljs compile test && karma start --single-run",
+    "deploy": "./deploy.sh"
   }
 }
