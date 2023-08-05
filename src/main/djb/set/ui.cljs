@@ -63,7 +63,8 @@
         [action-button astate game/deal-up "3 more cards"]
         [action-button astate #(assoc % :deck (take 3 (:deck %))) "Last 3"]
         [action-button astate #(game/deal (game/fresh-state game/cards)) "Reset"]
-        [highlight-toggle]]]]
+        [highlight-toggle]]
+       [:p [:a {:href "https://github.com/duncanjbrown/set"} "Source code on GitHub"]]]]
      [:div.right
       [:div#set
        [:svg {:id "svg-defs"} (map graphics/svg-lines [:red :purple :green])]
