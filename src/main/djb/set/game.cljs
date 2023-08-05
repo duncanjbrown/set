@@ -96,9 +96,14 @@
       (take-set-and-do-not-deal state))))
 
 (defn take-sets-if-any [state]
-  (if (makes-set? (:current-selection state))
-    (take-set state)
-    state))
+  (let [{:keys [current-selection]} state
+        hand-full? (= 3 (count current-selection))]
+    (if hand-full?
+      (if (makes-set? current-selection)
+        (take-set state)
+        (assoc state :current-selection #{}))
+      state)))
+
 
 (defn select-card [state card]
   (let [legal-card? (contains? (set (:cards-in-play state)) card)
