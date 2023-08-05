@@ -85,14 +85,15 @@
         new-sets-in-play (detect-sets new-cards-in-play)]
       (assoc state
              :sets-in-play new-sets-in-play
-             :cards-in-play new-cards-in-play 
+             :cards-in-play new-cards-in-play
              :sets new-sets
              :current-selection #{})))
 
 (defn take-set [state]
-  (if (< (- (count (:cards-in-play state)) 3) 12)
-    (take-set-and-deal-back-to-twelve state)
-    (take-set-and-do-not-deal state)))
+  (let [remaining (- (count (:cards-in-play state)) 3)]
+    (if (< remaining 12)
+      (take-set-and-deal-back-to-twelve state)
+      (take-set-and-do-not-deal state))))
 
 (defn take-sets-if-any [state]
   (if (makes-set? (:current-selection state))

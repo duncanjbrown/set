@@ -61,10 +61,8 @@
     (let [state (-> (sut/fresh-state sut/cards)
                     sut/deal
                     sut/deal-up)
-          new-state (-> (assoc state :current-selection (take 3 (:cards-in-play state)))
+          new-state (-> (assoc state :current-selection (set (take 3 (:cards-in-play state))))
                         sut/take-set)]
-      (tap> "Here in test")
-      (tap> new-state)
       (is (= 12 (count (:cards-in-play new-state))))))
 
   (deftest test-select-card
