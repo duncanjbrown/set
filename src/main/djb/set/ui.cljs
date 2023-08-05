@@ -4,6 +4,12 @@
             [clojure.string]
             [djb.set.graphics :as graphics]))
 
+(defn touch-and-click-handler [attrs handler]
+  (let [event #(do
+                (.preventDefault %)
+                (handler))]
+    (assoc attrs :on-touch-end event :on-click event)))
+
 (defn set-card-component [{:keys [id number shape colour fill]}]
   [:li.card
    (for [n (range number)]
@@ -16,8 +22,7 @@
         set-classes (when (:highlighting? @astate) (map #(str "in-set set-" %) highlights))
         class (str (when is-selected? " selected ") (clojure.string/join " " set-classes))]
     [:li.card
-     {:on-click #(reset! astate (game/select-card @astate card))
-      :class class}
+     (touch-and-click-handler {:class class} #(reset! astate (game/select-card @astate card)))
      (for [n (range (:number card))]
        ^{:key (str (:id card) "-" n)}
        [graphics/shape (:shape card) (:colour card) (:fill card)])]))
@@ -33,7 +38,7 @@
 
 (defn action-button [astate action-fn label]
   [:div.deal
-   [:button {:type "button" :on-click #(reset! astate (action-fn @astate))} label]])
+   [:button (touch-and-click-handler {:type "button"} #(reset! astate (action-fn @astate))) label]])
 
 (defn highlight-toggle [astate]
   [:div.highlight-toggle
