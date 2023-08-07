@@ -18,7 +18,8 @@
                            :highlighting? false})
 
 (defn makes-set? [cards]
-  (let [attrs [:colour :fill :shape :number]]
+  (let [cards (remove nil? cards)
+        attrs [:colour :fill :shape :number]]
     (and (= 3 (count cards))
          (every? (fn [prop]
                    (let [vs (map #(get % prop) cards)
@@ -55,20 +56,15 @@
         (assoc :cards-in-play cards-in-play)
         (assoc :sets-in-play (detect-sets cards-in-play)))))
 
-;; we can track which cards we're about to remove...
-(defn- indices-of-els [s els]
-  (let [element-set (set els)]
-    (keep-indexed (fn [i member] (when (contains? element-set member) i)) s)))
-
-;; ...and replace them with the new cards
-(defn- replace-els [s els replacements]
-  (let [idxs (indices-of-els s els)]
-    (apply assoc (vec s) (mapcat vector idxs replacements))))
+(defn replace-with-pad
+  [orig-seq to-replace replacements]
+  (let [replacement-map (into {} (map vector to-replace (concat replacements (repeat nil))))]
+    (map #(replacement-map % %) orig-seq)))
 
 (defn- take-set-and-deal-back-to-twelve [state]
   (let [{:keys [deck cards-in-play current-selection sets]} state
         [new-cards new-deck] (split-at 3 deck)
-        new-cards-in-play (replace-els cards-in-play current-selection new-cards)
+        new-cards-in-play (replace-with-pad cards-in-play current-selection new-cards)
         new-sets (conj sets current-selection)
         new-sets-in-play (detect-sets new-cards-in-play)]
       (assoc state

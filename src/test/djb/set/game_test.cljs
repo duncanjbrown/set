@@ -1,12 +1,13 @@
 (ns djb.set.game-test
   (:require [djb.set.game :as sut]
-            [cljs.test :refer-macros [deftest is testing run-tests]]))
+            [cljs.test :refer-macros [deftest is testing]]))
 
-(defn extract-valid-set [state]
-  (->> (:deck state)
-       (filter #(= :red (:colour %)))
-       (filter #(= 1 (:number %)))
-       (filter #(= :solid (:fill %)))))
+(defn debug [value message]
+  (tap> {:location message :value value})
+  value)
+
+;; It's handy to have a few valid sets
+(def red-cards (filter #(= (:colour %) :red) sut/cards))
 
 (testing "makes-set?"
   (deftest winner
@@ -47,6 +48,23 @@
        (= (- 81 12) (count (:deck new-state)))))))
 
 (testing "selecting"
+  (defn select-cards
+    "Select these cards from the table"
+
+    [state cards]
+    (reduce (fn [acc-state card]
+              (sut/select-card acc-state card))
+            state cards))
+
+  (defn play-until-end
+    "Remove sets until there are no more sets"
+    [state]
+    (let [available-sets (:sets-in-play state)]
+      (if (and available-sets (not-empty available-sets))
+        (let [new-state (select-cards state (first available-sets))]
+          (recur new-state))
+        state)))
+
   (deftest take-set
     (let [dealt (sut/deal (sut/fresh-state sut/cards))
           cards-to-take (take 3 (:cards-in-play dealt))
@@ -68,12 +86,36 @@
   (deftest test-select-card
     (let [state (sut/deal (sut/fresh-state sut/cards))
           bad-card :whatever
-          good-cards (take 10 (:cards-in-play state))]
-      (is (= 1 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 1 good-cards))))))
-      (is (= 2 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 2 good-cards))))))
-      (is (= 0 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 3 good-cards))))))
-      (is (= 1 (count (:current-selection (reduce (fn [state card] (sut/select-card state card)) state (take 4 good-cards))))))
-      (is (= 0 (count (:current-selection (sut/select-card state bad-card))))))))
+          good-cards (take 10 (:cards-in-play state))
+          current-selection-count-after-selecting (fn [n]
+                                                    (count (:current-selection (select-cards state (take n good-cards)))))]
+      (is (= 1 (current-selection-count-after-selecting 1)))
+      (is (= 2 (current-selection-count-after-selecting 2)))
+      (is (= 0 (current-selection-count-after-selecting 3)))
+      (is (= 1 (current-selection-count-after-selecting 4)))
+      (is (= 0 (count (:current-selection (sut/select-card state bad-card)))))))
+
+  (deftest end-of-game
+    (let [state (->
+                 (sut/fresh-state (take 12 red-cards)) ;; the deck contains a tableful of valid sets
+                 sut/deal
+                 play-until-end)]
+      (is (= 0 (count (:current-selection state))))
+      (is (empty? (:sets-in-play state)))
+      (is (= 0 (count (remove nil? (:cards-in-play state))))))))
+
+(testing "replace-with-pad"
+  (deftest with-els-to-replace
+    (let [sequence (range 5)
+          to-replace [1 2 3]
+          replacements [:a :b :c]]
+      (is (= (sut/replace-with-pad sequence to-replace replacements) [0 :a :b :c 4]))))
+
+  (deftest with-no-els-to-replace
+    (let [sequence (range 5)
+          to-replace [1 2 3]
+          replacements []]
+      (is (= (sut/replace-with-pad sequence to-replace replacements) [0 nil nil nil 4])))))
 
 (testing "computer assist"
   (deftest detect-sets

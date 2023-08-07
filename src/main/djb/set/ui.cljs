@@ -17,15 +17,17 @@
      [graphics/shape shape colour fill])])
 
 (defn card-component [astate card]
-  (let [is-selected? (contains? (set (:current-selection @astate)) card)
-        highlights (keep-indexed (fn [i s] (when (contains? (set s) card) i)) (:sets-in-play @astate))
-        set-classes (when (:highlighting? @astate) (map #(str "in-set set-" %) highlights))
-        class (str (when is-selected? " selected ") (clojure.string/join " " set-classes))]
-    [:li.card
-     (touch-and-click-handler {:class class} #(reset! astate (game/select-card @astate card)))
-     (for [n (range (:number card))]
-       ^{:key (str (:id card) "-" n)}
-       [graphics/shape (:shape card) (:colour card) (:fill card)])]))
+  [:li.card-container
+    (when card ; sometimes we need to leave a card-shaped space
+      (let [is-selected? (contains? (set (:current-selection @astate)) card)
+            highlights (keep-indexed (fn [i s] (when (contains? (set s) card) i)) (:sets-in-play @astate))
+            set-classes (when (:highlighting? @astate) (map #(str "in-set set-" %) highlights))
+            class (str (when is-selected? " selected ") (clojure.string/join " " set-classes))]
+        [:li.card
+          (touch-and-click-handler {:class class} #(reset! astate (game/select-card @astate card)))
+          (for [n (range (:number card))]
+            ^{:key (str (:id card) "-" n)}
+            [graphics/shape (:shape card) (:colour card) (:fill card)])]))])
 
 (defn complete-sets [sets]
   (when (seq @sets)
@@ -55,7 +57,6 @@
         complete-sets (partial complete-sets sets)
         highlight-toggle (partial highlight-toggle astate)
         card-component (partial card-component astate)]
-    (tap> @astate)
     [:div.grid
      [:div.left
       [:h1 "SET"]
@@ -74,5 +75,6 @@
       [:div#set
        [:svg {:id "svg-defs"} (map graphics/svg-lines [:red :purple :green])]
        [:div.game
-        [:div.tabletop [:ul.cards (for [card @cards-in-play] ^{:key (:id card)} [card-component card])]]]]]]))
+        [:div.tabletop
+         [:ul.cards (for [card @cards-in-play] ^{:key (:id card)} [card-component card])]]]]]]))
 
