@@ -57,24 +57,25 @@
         complete-sets (partial complete-sets sets)
         highlight-toggle (partial highlight-toggle astate)
         card-component (partial card-component astate)]
-    [:div.grid
-     [:div.left
+    [:div.container
       [:h1 "SET"]
-      [:div.debug
-       [complete-sets]
-       [:p (str (count @deck) " cards in deck")]
-       [:div.controls
-        [action-button astate game/deal "Deal"]
-        [action-button astate game/shuffle-cards "Shuffle"]
-        [action-button astate game/deal-up "3 more cards"]
-        [action-button astate #(assoc % :deck (take 3 (:deck %))) "Last 3"]
-        [action-button astate #(game/deal (game/fresh-state game/cards)) "Reset"]
-        [highlight-toggle]]
-       [:p [:a {:href "https://github.com/duncanjbrown/set"} "Source code on GitHub"]]]]
-     [:div.right
-      [:div#set
-       [:svg {:id "svg-defs"} (map graphics/svg-lines [:red :purple :green])]
-       [:div.game
-        [:div.tabletop
-         [:ul.cards (for [card @cards-in-play] ^{:key (:id card)} [card-component card])]]]]]]))
+      [:div.grid
+        [:div.left
+          [:div.debug]
+          [complete-sets]
+          [:p (str (count @deck) " cards in deck")]
+          [:div.controls
+            [action-button astate game/deal "Deal"]
+            [action-button astate game/shuffle-cards "Shuffle"]
+            [action-button astate game/deal-up "3 more cards"]
+            [action-button astate #(assoc % :deck (take 3 (:deck %))) "Last 3"]
+            [action-button astate #(game/deal (game/fresh-state game/cards)) "Reset"]
+            [highlight-toggle]]
+          [:p [:a {:href "https://github.com/duncanjbrown/set"} "Source code on GitHub"]]]
+        [:div.right
+          [:div#set]
+          [:svg {:id "svg-defs"} (map graphics/svg-lines [:red :purple :green])]
+          [:div.game
+            [:div.tabletop]
+            [:ul.cards (for [card @cards-in-play] ^{:key (:id card)} [card-component card])]]]]]))
 

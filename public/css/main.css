@@ -1,5 +1,5 @@
 html {
-  font-family: sans-serif
+  font-family: sans-serif;
 }
 
 .card-container {
@@ -66,7 +66,7 @@ html {
 }
 
 .card svg {
-  width:100%;
+  width: 100%;
   height: 33%;
 }
 
@@ -80,13 +80,45 @@ html {
   display: grid;
   grid-template-columns: 0.6fr 4fr; /* Adjust the ratio as needed */
   grid-gap: 20px; /* Adjust the gap between columns as needed */
+  place-items: center;
+  grid-template-areas: "left right";
+  align-items: start;
 }
 
 .grid .left {
-  border-right: 1px solid #e1e1e1;
+  grid-area: left;
   padding-right: 10px;
   width: 180px;
 }
+
+.grid .right {
+  grid-area: right;
+}
+
+@media (max-width: 1000px) {
+  h1 { display: none }
+    .grid {
+        grid-template-columns: 1fr; /* one column, full width */
+        grid-template-areas:
+            "right"
+            "left";
+    }
+
+    .grid.right {
+      width:100%;
+      }
+}
+
+.container {
+  max-width: 908px;
+  margin: 0 auto;
+}
+
+h1 {
+  border-bottom: 1px solid #e1e1e1;
+  padding-bottom: 10px;
+}
+
 
 button {
   width: 100%;
