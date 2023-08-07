@@ -14,10 +14,10 @@
    [:pattern
     {:id (str (name colour) "-lines")
      :patternTransform "rotate(90 2 2)",
-     :height "2.5",
+     :height "5",
      :width "4",
      :patternUnits "userSpaceOnUse"}
-    [:path {:stroke-width "2", :stroke colour, :d "M -0.5,0 L 4,0"}]]])
+    [:path {:stroke-width "3", :stroke colour, :d "M -1,-0.5 L 4,-0.5"}]]])
 
 (defn shape [shape colour fill]
   [:svg
@@ -32,5 +32,5 @@
              :lines (str "url(#" (name colour) "-lines)")
              :none "white")
      :stroke colour
-     :stroke-width 2}]])
+     :stroke-width 3}]])
 
